@@ -3,7 +3,7 @@ from vjyscan.cli.prints import *
 
 
 class VJScan:
-    def __init__(self, verbose=False):
+    def __init__(self, ua, proxy, verbose):
         self.print_vulnerable = print_vulnerable
         self.print_found = print_found
         if verbose:
@@ -15,4 +15,6 @@ class VJScan:
             self.print_not_vulnerable = dummy
             self.print_not_found = dummy
         self.http_client = requests.Session()
-        # TODO add proxy, cookie, agent handler
+        self.http_client.headers.update(ua)
+        if proxy:
+            self.http_client.proxies.update(proxy)
