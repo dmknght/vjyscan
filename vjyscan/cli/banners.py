@@ -2,6 +2,14 @@ def help_banner(program):
     print(f"{program} <target> [--verbose / --silent]")
 
 
+def full_help_banner(program):
+    help_banner(program)
+    print("")
+    print("  --cookie  Cookie's value")
+    print("  --ua  User-Agent")
+    print("  --proxy  Custom proxy address")
+
+
 def program_banner(description, version, orig_name, gitlab_url):
     # from vbyscan import cores
     print("      ___      ___               ")
