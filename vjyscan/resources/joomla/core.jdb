@@ -1,3 +1,10 @@
+{"name": "Insufficient access control for com_media deletion endpoint", "CVE": "CVE-2021-26040", "version": "4.0.0"}
 {"name": "XSS in com_media imagelist", "CVE":  "CVE-2021-26039", "version": "3.0.0<=3.9.27"}
-{"name":  "Privilege escalation through com_installer", "CVE": "CVE-2021-26038", "version":  "2.5.0<=3.9.27"}
-{"name":  "Lack of enforced session termination", "CVE": "CVE-2021-26037", "version": "2.5.0<=3.9.27"}
+{"name": "Privilege escalation through com_installer", "CVE": "CVE-2021-26038", "version":  "2.5.0<=3.9.27"}
+{"name": "Lack of enforced session termination", "CVE": "CVE-2021-26037", "version": "2.5.0<=3.9.27"}
+{"name": "DoS through usergroup table manipulation", "CVE": "CVE-2021-26036", "version": "2.5.0<=3.9.27"}
+{"name": "XSS in JForm Rules field", "CVE": "CVE-2021-26035", "version": "3.0.0<=3.9.27"}
+{"name": "CSRF in data download endpoints", "CVE": "CVE-2021-26034", "version": "3.0.0<=3.9.26"}
+{"name": "CSRF in AJAX reordering endpoint", "CVE": "CVE-2021-26033", "version": "3.0.0<=3.9.26"}
+{"name": "MediaHelper::canUpload XSS", "CVE": "CVE-2021-26032", "version": "3.0.0<=3.9.26"}
+{"name": "Inadequate filters on module layout settings LFI", "CVE": "CVE-2021-26031", "version": "3.0.0<3.9.25"}
