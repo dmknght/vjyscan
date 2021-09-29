@@ -1,80 +1,3 @@
-import re
-
-
-def joomla_cmp_range(target_version: str, cmp_range_version: str) -> bool:
-    """
-    :param target_version: Target's version from parser
-    :param cmp_range_version: Vulnerable version from DB, ex: 0.1.2<0.1.5
-    :return: bool -> True if target version is in vulnerable version group
-    """
-    tversion = re.split("[.+:~-]", target_version)
-
-    def cmp(tv: list, minv: list, maxv: list) -> bool:
-        """
-        :param tv: Target's version from parser
-        :param minv: Vulnerable min version from DB
-        :param maxv: Vulnerable max version from DB
-        :return: bool -> True if target version is in vulnerable version group
-        """
-
-        for i in range(0, max(len(tv), len(minv), len(maxv))):
-            if not tv[i]:
-                tv.append(0)
-
-            if not minv[i]:
-                minv.append(0)
-
-            if not maxv[i]:
-                maxv.append(0)
-
-            if int(minv[i]) < int(tv[i]) < int(maxv[i]):
-                return True
-
-            if int(tv[i]) < int(minv[i]) or int(tv[i]) > int(maxv[i]):
-                return False
-
-        return False
-
-    if cmp_range_version.find("=<=") != -1:
-        range_version = re.split("=<=", cmp_range_version)
-        min_version = re.split("[.+:~-]", range_version[0]) if range_version[0] != '' else [0, 0, 0]
-        max_version = re.split("[.+:~-]", range_version[1])
-
-        if range_version[0] == target_version or range_version[1] == target_version:
-            return True
-
-        return cmp(tversion, min_version, max_version)
-
-    if cmp_range_version.find("<=") != -1:
-        range_version = re.split("<=", cmp_range_version)
-        min_version = re.split("[.+:~-]", range_version[0]) if range_version[0] != '' else [0, 0, 0]
-        max_version = re.split("[.+:~-]", range_version[1])
-
-        if range_version[1] == target_version:
-            return True
-
-        return cmp(tversion, min_version, max_version)
-
-    if cmp_range_version.find("=<") != -1:
-        range_version = re.split("=<", cmp_range_version)
-        min_version = re.split("[.+:~-]", range_version[0]) if range_version[0] != '' else [0, 0, 0]
-        max_version = re.split("[.+:~-]", range_version[1])
-
-        if range_version[0] == target_version:
-            return True
-
-        return cmp(tversion, min_version, max_version)
-
-    if cmp_range_version.find("<") != -1:
-        range_version = re.split("<", cmp_range_version)
-        min_version = re.split("[.+:~-]", range_version[0]) if range_version[0] != '' else [0, 0, 0]
-        max_version = re.split("[.+:~-]", range_version[1])
-
-        return cmp(tversion, min_version, max_version)
-
-    return False
-
-
 def joomla_cmp(target_version: str, cmp_version: str) -> bool:
     """
     Original code: https://github.com/OWASP/joomscan/blob/master/core/compare.pl
@@ -86,14 +9,88 @@ def joomla_cmp(target_version: str, cmp_version: str) -> bool:
     :return: bool -> True if target version is in vulnerable version group
     Example: joomla_cmp("0.2.3", "<=0.2.5")
     """
+    
+    def cmp(tv: list, start_v: list, end_v: list) -> bool:
+        """
+        :param tv: Target's version from parser
+        :param start_v: Vulnerable start version from DB
+        :param end_v: Vulnerable end version from DB
+        :return: bool -> True if target version is in vulnerable version group
+        """
 
-    #
-    cmp_version = cmp_version.replace(" ", "")
-    if re.search("(=<.*)|(<=.*)|(=<=.*)|(<.*)", cmp_version):
-        # (=<.*)|(<=.*)|(=<=.*) -> 0.1.2<0.1.5
-        return joomla_cmp_range(target_version, cmp_version)
+        for i in range(0, max(len(tv), len(start_v), len(end_v))):
+            if not tv[i]:
+                tv.append(0)
 
-    if target_version == cmp_version:
+            if not start_v[i]:
+                start_v.append(0)
+
+            if not end_v[i]:
+                end_v.append(0)
+
+            if int(start_v[i]) < int(tv[i]) < int(end_v[i]):
+                return True
+
+            if int(tv[i]) < int(start_v[i]) or int(tv[i]) > int(end_v[i]):
+                return False
+
+        return False
+
+    tversion = target_version.split(".")
+    cmp_version = cmp_version.replace('', '')
+    list_cmp_version = cmp_version.split('<')
+    
+    if len(list_cmp_version) >= 2:
+        start_version = list_cmp_version[0] if list_cmp_version[0] != '' else '0.0.0'
+        start_version = start_version if start_version != '=' else '0.0.0' + start_version
+        end_version = list_cmp_version[1]
+        
+        #ex: 1.2.4 compare 1.2.3=<=1.2.5 -> True
+        #ex: 1.2.3 compare 1.2.3=<=1.2.5 -> True
+        #ex: 1.2.5 compare 1.2.3=<=1.2.5 -> True
+        #ex: 1.2.2 compare 1.2.3=<=1.2.5 -> False
+        #ex:  1.2.6 compare 1.2.3=<=1.2.5 -> False
+        if start_version.endswith('=') and end_version.startswith('='):
+            
+            start_version = start_version.replace('=', '')
+            end_version = end_version.replace('=', '')
+            
+            if start_version == target_version or end_version == target_version:
+                return True
+            
+            start_version = start_version.split('.')
+            end_version = end_version.split('.')
+            
+            return cmp(tversion, start_version, end_version)
+        
+        #ex: 1.2.3 compare 1.2.3=<1.2.5 -> True
+        #ex: 1.2.5 compare 1.2.3=<1.2.5 -> False
+        if start_version.endswith('='):
+            start_version = start_version.replace('=', '')
+            
+            if start_version == target_version:
+                return True
+            
+            start_version = start_version.split('.')
+            end_version = end_version.split('.')
+            
+            return cmp(tversion, start_version, end_version)
+        
+        #ex: 1.2.3 compare 1.2.3<=1.2.5 -> False
+        #ex: 1.2.5 compare 1.2.3<=1.2.5 -> True
+        if end_version.startswith('='):
+            
+            end_version = end_version.replace('=', '')
+            
+            if end_version == target_version:
+                return True
+            
+            start_version = start_version.split('.')
+            end_version = end_version.split('.')
+            
+            return cmp(tversion, start_version, end_version)
+        
+    if len(list_cmp_version) == 1 and target_version == list_cmp_version[0]:
         return True
-
+    
     return False
