@@ -12,6 +12,21 @@ def check_xml(client, url):
     Parse version from ('administrator/manifests/files/joomla.xml','language/en-GB/en-GB.xml',
     'administrator/components/com_content/content.xml','administrator/components/com_plugins/plugins.xml',
     'administrator/components/com_media/media.xml','mambots/content/moscode.xml')
+      1. administrator/manifests/files/joomla.xml: Contains version of joomla
+        <extension version="3.6" type="file" method="upgrade">
+        <version>3.9.11</version>
+        file paths in <files> and other information
+      2. language/en-GB/en-GB.xml: Contains version of joomla <version>3.9.11</version>
+      3. administrator/components/com_content/content.xml
+        Contains version of joomla <version>3.0.0</version> (isn't as same as other path??)
+        Some files of admin <administration>
+        <files folder="admin">
+      4. administrator/components/com_plugins/plugins.xml
+        Contains version of joomla <version>3.0.0</version> (isn't as same as other path??)
+      5. administrator/components/com_media/media.xml
+        Contains version of joomla <version>3.0.0</version> (isn't as same as other path??)
+        Other files of admin
+      6. mambots/content/moscode.xml (404 not found on check target)
     :param client: HTML session, which is from cores.http_session
     :param url: Target URL
     :return: version of Joomla
