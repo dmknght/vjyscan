@@ -1,5 +1,4 @@
 from vjyscan.cores import *
-import re
 """
 Detect Joomla version
 Original source: https://github.com/OWASP/joomscan/blob/master/core/ver.pl
@@ -11,9 +10,7 @@ Py version: 0.0.1, Date 29th Sep 2021
 
 def check_xml(client, url):
     """
-    Parse version from ('administrator/manifests/files/joomla.xml','language/en-GB/en-GB.xml',
-    'administrator/components/com_content/content.xml','administrator/components/com_plugins/plugins.xml',
-    'administrator/components/com_media/media.xml','mambots/content/moscode.xml')
+    Parse version URLs bellow
       1. administrator/manifests/files/joomla.xml: Contains version of joomla
         <extension version="3.6" type="file" method="upgrade">
         <version>3.9.11</version>
@@ -31,7 +28,7 @@ def check_xml(client, url):
       6. mambots/content/moscode.xml (404 not found on check target)
     :param client: HTML session, which is from cores.http_session
     :param url: Target URL
-    :return: version of Joomla
+    :return: version of Joomla which is from regex
     """
     file_paths = ('administrator/manifests/files/joomla.xml', 'language/en-GB/en-GB.xml',
                   'administrator/components/com_content/content.xml',
