@@ -7,4 +7,14 @@
 {"name": "CSRF in data download endpoints", "CVE": "CVE-2021-26034", "version": "3.0.0<=3.9.26"}
 {"name": "CSRF in AJAX reordering endpoint", "CVE": "CVE-2021-26033", "version": "3.0.0<=3.9.26"}
 {"name": "MediaHelper::canUpload XSS", "CVE": "CVE-2021-26032", "version": "3.0.0<=3.9.26"}
-{"name": "Inadequate filters on module layout settings LFI", "CVE": "CVE-2021-26031", "version": "3.0.0<3.9.25"}
+{"name": "Inadequate filters on module layout settings LFI", "CVE": "CVE-2021-26031", "version": "3.0.0<=3.9.25"}
+{"name": "Escape xss in logo parameter error pages", "CVE": "CVE-2021-26030", "version": "3.0.0<=3.9.25"}
+{"name": "Input validation within the template manager", "CVE": "CVE-2021-23131", "version": "3.2.0<=3.9.24"}
+{"name": "Insecure randomness within 2FA secret generation", "CVE": "CVE-2021-23126, CVE-2021-23127", "version": "3.2.0<=3.9.24"}
+{"name": "Potential Insecure FOFEncryptRandval", "CVE": "CVE-2021-23128", "version": "3.2.0<=3.9.24"}
+{"name": "XSS within alert messages showed to users", "CVE": "CVE-2021-23129", "version": "2.5.0<=3.9.24"}
+{"name": "Path Traversal within joomla/archive zip class", "CVE": "CVE-2021-26028", "version": "3.0.0<=3.9.24"}
+{"name": "XSS within the feed parser library", "CVE": "CVE-2021-23130", "version": "2.5.0<=3.9.24"}
+{"name": "com_media allowed paths that are not intended for image uploads", "CVE": "CVE-2021-23132", "version": "3.0.0<=3.9.24"}
+{"name": "ACL violation within com_content frontend editing", "CVE": "CVE-2021-26027", "version": "3.0.0<=3.9.24"}
+{"name": "Inadequate filtering of form contents could allow to overwrite the author field", "CVE": "CVE-2021-26029", "version": "1.6.0<=3.9.24"}
