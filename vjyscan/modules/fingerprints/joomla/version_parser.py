@@ -40,6 +40,9 @@ def check_xml(client, url):
     for path in file_paths:
         check_url = url + path
         req = client.http_client.get(check_url)
+        if req.status_code == 200:
+            client.print_found(check_url)
         version = parse_regex(req.text, r"<version>(.*?)\<\/version>")
         if version:
+            client.print_found(f"Found version {version}")
             return version
