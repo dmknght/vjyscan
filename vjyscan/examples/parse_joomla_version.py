@@ -5,4 +5,4 @@ session = http_session.VJScan(verbose=True, ua="Mozilla/5.0", cookie="", proxy="
 
 target_url = "https://ktht.nuce.edu.vn/"
 
-version_parser.check_xml(session, target_url)
+print(version_parser.check_xml(session, target_url))

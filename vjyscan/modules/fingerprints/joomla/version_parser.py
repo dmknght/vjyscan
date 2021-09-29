@@ -1,3 +1,5 @@
+from vjyscan.cores import *
+import re
 """
 Detect Joomla version
 Original source: https://github.com/OWASP/joomscan/blob/master/core/ver.pl
@@ -38,4 +40,6 @@ def check_xml(client, url):
     for path in file_paths:
         check_url = url + path
         req = client.http_client.get(check_url)
-        print(req.text)
+        version = parse_regex(req.text, r"<version>(.*?)\<\/version>")
+        if version:
+            return version
