@@ -15,6 +15,10 @@ class VJScan:
             self.print_not_vulnerable = dummy
             self.print_not_found = dummy
         self.http_client = requests.Session()
+        # README: python3-request has error urllib3.exceptions.LocationParseError: Failed to parse
+        # The problem is because of module six
+        # Conflict: pwntools
+        # Solution: upgrade module six to version 16 (pip3 install six --upgrade)
         self.http_client.headers.update({'User-Agent': ua})
         if proxy:
             self.http_client.proxies.update({'http': proxy})  # must check https proxies
