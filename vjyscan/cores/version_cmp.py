@@ -40,7 +40,7 @@ def joomla_cmp_range(target_version: str, cmp_range_version: str) -> bool:
         min_version = re.split("[.+:~-]", range_version[0]) if range_version[0] != '' else [0, 0, 0]
         max_version = re.split("[.+:~-]", range_version[1])
 
-        if range_version[0] == target_version and range_version[1] == target_version:
+        if range_version[0] == target_version or range_version[1] == target_version:
             return True
 
         return cmp(tversion, min_version, max_version)
