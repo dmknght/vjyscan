@@ -59,8 +59,8 @@ def __cmp_with_db_version(target_version: str, db_version: str) -> bool:
         or int_x.int_y.int_z<int_a.int_b.int_c
     :return: True if target_version is in the db_version range.
     """
+    do_op = operator.le
     if "<=" in db_version:
-        do_op = operator.le
         min_ver, max_ver = db_version.split("<=")
         # THINK: do we need quick string check because we are doing cmp >= for min version
         if target_version == min_ver or target_version == max_ver:
@@ -71,14 +71,14 @@ def __cmp_with_db_version(target_version: str, db_version: str) -> bool:
         else:
             return False
     elif "<" in db_version:
-        do_op = operator.le
         min_ver, max_ver = db_version.split("<")
         # THINK: do we need quick string check because we are doing cmp >= for min version
         if target_version == min_ver:
             return True
+        if target_version == max_ver:
+            return False
         if __do_cmp_version(operator.ge, target_version, min_ver) and \
-                __do_cmp_version(do_op, target_version, max_ver) and \
-                max_ver != target_version:
+                __do_cmp_version(do_op, target_version, max_ver):
             return True
         else:
             return False
