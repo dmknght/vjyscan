@@ -28,7 +28,6 @@ def validate_versions(target_version: str, db_version: str) -> tuple:
     if diff_dot > 0:
         for i in range(diff_dot):
             db_version += ".0"
-        
         return target_version, db_version
     
     # target_version: 1.1
@@ -41,7 +40,7 @@ def validate_versions(target_version: str, db_version: str) -> tuple:
     return target_version, db_version
 
 
-def __do_cmp_version(cmp_operator: str, target_version: str, db_version: str) -> bool:
+def __do_cmp_version(cmp_operator: operator, target_version: str, db_version: str) -> bool:
     """
 
     :param cmp_operator: operator callback
