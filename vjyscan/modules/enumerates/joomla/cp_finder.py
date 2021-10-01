@@ -12,6 +12,6 @@ def do_admin_finder(client: any, target: str):
         'joomla/admin')
     for path in list_admin_path:
         check_url = target + path + "/"
-        req = client.http_client(check_url)
+        req = client.http_client.get(check_url)
         if req.status_code in (200, 403, 500, 501):
             client.print_found(check_url)

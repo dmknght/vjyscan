@@ -18,7 +18,7 @@ def do_config_finder(client, target: str):
 
     for path in config_paths:
         check_url = target + path
-        req = client.http_client(check_url)
+        req = client.http_client.get(check_url)
         # Must do https://github.com/OWASP/joomscan/blob/master/modules/configfinder.pl#L10
         if req.status_code == 200:
             client.print_found(check_url)
