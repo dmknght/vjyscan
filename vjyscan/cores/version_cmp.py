@@ -43,7 +43,6 @@ def __do_cmp_version(cmp_operator: operator, target_version: str, db_version: st
     :param db_version:
     :return:
     """
-    target_version, db_version = validate_versions(target_version, db_version)
     for target, db in zip(target_version.split("."), db_version.split(".")):
         if not cmp_operator(target, db):
             return False
@@ -62,6 +61,7 @@ def __cmp_with_db_version(target_version: str, db_version: str) -> bool:
     """
     if "<=" in db_version:
         min_ver, max_ver = db_version.split("<=")
+        target_version, min_ver, max_ver = validate_versions((target_version, min_ver, max_ver))
         # THINK: do we need quick string check because we are doing cmp >= for min version
         if target_version == min_ver or target_version == max_ver:
             return True
@@ -74,6 +74,7 @@ def __cmp_with_db_version(target_version: str, db_version: str) -> bool:
             return False
     elif "<" in db_version:
         min_ver, max_ver = db_version.split("<")
+        target_version, min_ver, max_ver = validate_versions((target_version, min_ver, max_ver))
         # THINK: do we need quick string check because we are doing cmp >= for min version
         if target_version == min_ver:
             return True
@@ -87,6 +88,7 @@ def __cmp_with_db_version(target_version: str, db_version: str) -> bool:
         else:
             return False
     else:
+        target_version, db_version = validate_versions((target_version, db_version))
         if target_version == db_version:
             return True
         return False
