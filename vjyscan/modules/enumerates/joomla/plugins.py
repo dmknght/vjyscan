@@ -15,4 +15,6 @@ Work:
 5. Check version. Version should be in .xml file of components. syntax $target/components/$row/$row.xml
 regex /type=\"component\" version=\"(.*?)\" (perl syntax)
 6. Compare version with vulnerable versions
+7. Do the same brute forcing but with admin path $target/$adming/components/$row/$ffile (status_code == 200)
+    $ffiles is list in 4.
 """
