@@ -2,8 +2,10 @@
 from os.path import isfile
 import requests
 import re
+
 # Static Variable
 URL = 'https://developer.joomla.org/security-centre.html'
+
 
 # =================== Parse Part =================== #
 
@@ -18,6 +20,7 @@ def parse_to_database(data):
     print({"name": name, "CVE": CVE, "version": version})
     # return {"name": name, "CVE": CVE}
 
+
 #  === Done ===  #
 def parse_part(source):
     source = re.sub('[ \t\n\r]{1,}', ' ', source)
@@ -26,11 +29,14 @@ def parse_part(source):
     part = re.findall(parse_part_argument, source)
     return part
 
+
 def parsing(data, arguments):
     try:
         return re.search(arguments, data).group(0)
     except:
         return ""
+
+
 # =================== GET LINK =================== #
 
 #  === Done ===  #
@@ -38,22 +44,25 @@ def get_html(url):
     text = requests.get(url).text
     return text
 
+
 def get_page_links(data):
     list_link = []
     list_link.append(URL)
     end_page = 0
     try:
-        end_page = re.search(r'a href="/security-centre.html\?start=(\d+?)" class="pagenav hasTooltip" title="End"', data).group(1)
+        end_page = re.search(r'a href="/security-centre.html\?start=(\d+?)" class="pagenav hasTooltip" title="End"',
+                             data).group(1)
     except:
         exit('[-] Could not parse the end of page: ')
 
     end_page = int(end_page)
-    for i in range(1, int(end_page/10+1)):
-        list_link.append(f"https://developer.joomla.org/security-centre.html?start={i*10}")
+    for i in range(1, int(end_page / 10 + 1)):
+        list_link.append(f"https://developer.joomla.org/security-centre.html?start={i * 10}")
         return list_link
 
+
 # =================== Main =================== #
-if __name__=='__main__':
+if __name__ == '__main__':
     # ++++++++ Get source spot ++++++++ #
     # source = get_html(URL)
     if isfile('resouce.html'):
