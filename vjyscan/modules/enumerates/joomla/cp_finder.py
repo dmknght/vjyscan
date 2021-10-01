@@ -1,7 +1,7 @@
 """
 Find admin control panel path
 Original code: https://github.com/OWASP/joomscan/blob/master/modules/cpfinder.pl
-Original version: 0.0.7
+Original version: 0.0.1
 Original license: GPL-3
 """
 
