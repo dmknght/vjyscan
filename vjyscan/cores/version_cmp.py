@@ -13,35 +13,29 @@ Handle version cmp
 import operator
 
 
-def validate_versions(target_version: str, db_version: str) -> tuple:
+def validate_versions(version_numbers: tuple) -> tuple:
     """
     Maybe the version could be in wrong format. Example: target version 1.2, db_version 1.2.3
     This function will convert format target_version and db_version to same range
-    :param target_version: Target's version from parser. Format int_x.int_y.int_z (1.2.3, 1.1.1)
-    :param db_version: Splited versions from db. Now it is single version is as same as db_version
-    :return: target_version, db_version -> string but with same length
+    :param version_numbers: Multiple versions from parser which could have different count of ".".
+    Format of version int_x.int_y.int_z (1.2.3, 1.1.1)
+    :return: tuple of strings of versions but with same length
     """
-    
-    diff_dot = target_version.count(".") - db_version.count(".")
-    # target_version: 1.1.1
-    # db_version: 1.1
-    if diff_dot > 0:
-        for i in range(diff_dot):
-            db_version += ".0"
-        
-        return target_version, db_version
-    
-    # target_version: 1.1
-    # db_version: 1.1.1
-    if diff_dot < 0:
-        for i in range(0 - diff_dot):
-            target_version += ".0"
-        return target_version, db_version
-    
-    return target_version, db_version
+
+    result = ()
+
+    max_len = max([x.count(".") for x in version_numbers])
+    for version in version_numbers:
+        tmp_ver, tmp_count = version, version.count(".")
+        if tmp_count < max_len:
+            for i in range(max_len - tmp_count):
+                tmp_ver += ".0"
+        result += (tmp_ver, )
+
+    return result
 
 
-def __do_cmp_version(cmp_operator: str, target_version: str, db_version: str) -> bool:
+def __do_cmp_version(cmp_operator: operator, target_version: str, db_version: str) -> bool:
     """
 
     :param cmp_operator: operator callback
@@ -49,7 +43,6 @@ def __do_cmp_version(cmp_operator: str, target_version: str, db_version: str) ->
     :param db_version:
     :return:
     """
-    target_version, db_version = validate_versions(target_version, db_version)
     for target, db in zip(target_version.split("."), db_version.split(".")):
         if not cmp_operator(target, db):
             return False
@@ -68,6 +61,7 @@ def __cmp_with_db_version(target_version: str, db_version: str) -> bool:
     """
     if "<=" in db_version:
         min_ver, max_ver = db_version.split("<=")
+        target_version, min_ver, max_ver = validate_versions((target_version, min_ver, max_ver))
         # THINK: do we need quick string check because we are doing cmp >= for min version
         if target_version == min_ver or target_version == max_ver:
             return True
@@ -80,6 +74,7 @@ def __cmp_with_db_version(target_version: str, db_version: str) -> bool:
             return False
     elif "<" in db_version:
         min_ver, max_ver = db_version.split("<")
+        target_version, min_ver, max_ver = validate_versions((target_version, min_ver, max_ver))
         # THINK: do we need quick string check because we are doing cmp >= for min version
         if target_version == min_ver:
             return True
@@ -93,6 +88,7 @@ def __cmp_with_db_version(target_version: str, db_version: str) -> bool:
         else:
             return False
     else:
+        target_version, db_version = validate_versions((target_version, db_version))
         if target_version == db_version:
             return True
         return False
