@@ -1,85 +1,148 @@
-# Source: https://developer.joomla.org/security-centre.html?start=120
 from os.path import isfile
 import requests
 import re
 
-# Static Variable
-URL = 'https://developer.joomla.org/security-centre.html'
+# Home Page: https://developer.joomla.org/security-centre.html
 
+def parse_part(html):
+    """
+    This function will parse each part of items and return list of part
+    E.g:  <div ... > (get all value here) <!-- end item -->
 
-# =================== Parse Part =================== #
+    :param html: HTML which we get from request
+    :return parts: List of item we got from parsed
+    """
+    html = html.replace('\t', ' ').\
+                replace('\n', ' ').\
+                replace('\r', ' ').\
+                replace('\xa0', '').\
+                replace('</a>', '')
+    html = re.sub('[ ]{2,}|<a.+?>', ' ', html)
+    parse_part_argument = re.compile('<div class="item column-1" itemprop="blogPost" itemscope '
+                                     'itemtype="https://schema\.org/BlogPosting">(.+?)<!-- end item -->')
+    parts = re.findall(parse_part_argument, html)
+    return parts
 
-def parse_to_database(data):
-    name = re.search(r'Core[ -]{3}(.+?) </h2>', data).group(1)
-    if "CVE Number:" not in data:
-        CVE = ""
-    else:
-        CVE = re.search(r'<li><strong>CVE Number:</strong>[ ]{0,}(.+?)[ ]{0,}</li>', data).group(1)
-    version = re.search(r'<li><strong>Versions:[ ]{1,}</strong>(.+?)</li>', data).group(1)
-    version = re.sub('[ -]{2,}| through ', "<=", version)
-    print({"name": name, "CVE": CVE, "version": version})
-    # return {"name": name, "CVE": CVE}
+def clean_unwanted_data(part):
+    """
+    This function will clean unwanted data from part might cause of error
+        remove: <strong>, </strong>
+        replace: " - Core - " to " - ", " Core " to " - "
 
-
-#  === Done ===  #
-def parse_part(source):
-    source = re.sub('[ \t\n\r]{1,}', ' ', source)
-    source = re.sub('[ ]{2,}|<a.+?>|</a>', ' ', source)
-    parse_part_argument = r'<div class="item column-1" itemprop="blogPost" itemscope itemtype="https://schema\.org/BlogPosting">(.+?)<!-- end item -->'
-    part = re.findall(parse_part_argument, source)
+    :param part: The string part of item before parsing
+    :return part: The string after parsed
+    """
+    part = part.replace('<strong>', '').\
+                replace('</strong>', '').\
+                replace(' - Core - ', ' - ').\
+                replace(' Core ', ' - ')
     return part
 
+def parse_to_database(part):
+    """
+    This parser will get name of vulnerability, CVE Number, and version
+        from the part which data is inputted
 
-def parsing(data, arguments):
+    :param part: The part inputted from list of parts
+    :return string: {"Name": parsed_name, "CVE": CVE-Number, "version": version}
+    """
+    part = clean_unwanted_data(part)
+    name = re.search(r'\[[0-9]{8}][- ]{3}(.+?)[ ]{0,}</h2>', part).group(1)
+    if "<li>CVE Number:" not in part:
+        CVE = ''
+    else:
+        CVE = re.search(r'<li>CVE Number:(.+?)</li>', part).group(1)
     try:
-        return re.search(arguments, data).group(0)
-    except:
-        return ""
+        version = re.search(r'<li>Versions:(.+?)</li>', part).group(1).\
+                    replace('through', '<=').\
+                    replace('-', '<=').\
+                    replace(' <= ', '<=')
+    except: # If version not found, will continue to work and print the data
+        version = ""
+        print('[-] Version not found: ', end='')
+        print('{'+f'"name": "{name}", "CVE": "{CVE}", "version": "{version}"'+'}\n')
+    return '{'+f'"name": "{name}", "CVE": "{CVE}", "version": "{version}"'+'}'
 
+def get_vulnerabilities(html, list_database):
+    """
+    This function will parse the vulnerability like Name, CVE, Version
+    :param html (string): the source page
+    :return: Continue of the code
+    """
+    parts = parse_part(html)
+    for part in parts:
+        list_database.append(parse_to_database(part))
 
-# =================== GET LINK =================== #
+def start_parsing(end_page):
+    """
+    This function will gain page and then start to
+        parse by calling other function
+        Page: https://developer.joomla.org/security-centre.html?start=number*10
+    :param end_page (integer): the number of last page
+    :return list_database (list): the final data
+    """
+    list_database = []
+    for page in range(0, end_page):
+        html = requests.get(f"https://developer.joomla.org/security-centre.html?start={page*10}").text
+        get_vulnerabilities(html, list_database)
+    return list_database
 
-#  === Done ===  #
-def get_html(url):
-    text = requests.get(url).text
-    return text
+def get_end_page(html):
+    """
+    Home Page: https://developer.joomla.org/security-centre.html
+    This function will get all the page that joomla homepage have
+    These page will start from homepage and then add ?start=10 and
+        add 10 each page
 
-
-def get_page_links(data):
-    list_link = []
-    list_link.append(URL)
+    :param html (string): The source page
+    :return end_page (integer): The number of last page
+    """
     end_page = 0
+    parse_arguments = re.compile(
+        'a href="/security-centre.html\?start=(\d+?)" class="pagenav hasTooltip" title="End"')
     try:
-        end_page = re.search(r'a href="/security-centre.html\?start=(\d+?)" class="pagenav hasTooltip" title="End"',
-                             data).group(1)
+        end_page = re.search(parse_arguments, html).group(1)
     except:
-        exit('[-] Could not parse the end of page: ')
+        exit('[-] Could not get the end of page. Need to improve the code')
+    finally:
+        end_page = int(int(end_page)/10+1)
+        return end_page
 
-    end_page = int(end_page)
-    for i in range(1, int(end_page / 10 + 1)):
-        list_link.append(f"https://developer.joomla.org/security-centre.html?start={i * 10}")
-        return list_link
+def get_html(url):
+    """
+    Getting text source page from url
 
+    :param url (string): Link of homepage of core vulnerability
+    :return source (string): HTML of web page
+    """
+    source = requests.get(url).text
+    return source
 
-# =================== Main =================== #
-if __name__ == '__main__':
-    # ++++++++ Get source spot ++++++++ #
-    # source = get_html(URL)
-    if isfile('resouce.html'):
-        text = get_html(URL)
-        f = open('resource.html', 'w', encoding='UTF8')
-        f.write(text)
-        f.close()
-    source = open('resource.html', 'r', encoding='utf8').read()
-    # print(source)
-    # -------- End source spot -------- #
+def write_to_db(list_database):
+    """
+    This function will check if file doesn't exist, it will make a file
+        named: core.jdb and then append value to text file
 
-    # ++++++++ Start Parsing ++++++++ #
-    test = parse_part(source)
-    for i in test:
-        parse_to_database(i)
-        # print(i)
-    # print(test)
-    # === Done === #
-    # list_pages = get_page_links(text) # Done
-    # -------- End Parsing -------- #
+    :param list_database (list): final data to output to file
+    :return exit:
+    """
+    if isfile('core.jdb') == False:
+        open('core.jdb', 'w').close()
+    with open('core.jdb', 'a') as file:
+        exist_data = open('core.jdb', 'r').read()
+        for data in list_database:
+            if data not in exist_data:
+                file.write(data + '\n')
+    print('[+] Updated Successfully!')
+    return exit(0)
+
+def update_core():
+    """
+    This is the main of code, which will be called and returned
+        the data to file: ../resources/joomla/core.jdb
+    """
+    home_page = 'https://developer.joomla.org/security-centre.html'
+    source = get_html(home_page)
+    end_page = get_end_page(source)
+    list_database = start_parsing(end_page)
+    write_to_db(list_database)
