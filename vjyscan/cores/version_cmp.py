@@ -13,7 +13,7 @@ Handle version cmp
 import operator
 
 
-def validate_versions(version_numbers: tuple) -> tuple:
+def __validate_versions(version_numbers: tuple) -> tuple:
     """
     Maybe the version could be in wrong format. Example: target version 1.2, db_version 1.2.3
     This function will convert format target_version and db_version to same range
@@ -61,7 +61,7 @@ def __cmp_with_db_version(target_version: str, db_version: str) -> bool:
     """
     if "<=" in db_version:
         min_ver, max_ver = db_version.split("<=")
-        target_version, min_ver, max_ver = validate_versions((target_version, min_ver, max_ver))
+        target_version, min_ver, max_ver = __validate_versions((target_version, min_ver, max_ver))
         # THINK: do we need quick string check because we are doing cmp >= for min version
         if target_version == min_ver or target_version == max_ver:
             return True
@@ -74,7 +74,7 @@ def __cmp_with_db_version(target_version: str, db_version: str) -> bool:
             return False
     elif "<" in db_version:
         min_ver, max_ver = db_version.split("<")
-        target_version, min_ver, max_ver = validate_versions((target_version, min_ver, max_ver))
+        target_version, min_ver, max_ver = __validate_versions((target_version, min_ver, max_ver))
         # THINK: do we need quick string check because we are doing cmp >= for min version
         if target_version == min_ver:
             return True
@@ -88,7 +88,7 @@ def __cmp_with_db_version(target_version: str, db_version: str) -> bool:
         else:
             return False
     else:
-        target_version, db_version = validate_versions((target_version, db_version))
+        target_version, db_version = __validate_versions((target_version, db_version))
         if target_version == db_version:
             return True
         return False
