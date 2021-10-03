@@ -16,5 +16,5 @@ version = version_parser.check_xml(session, target_url)
 
 for line in open(db_path):
     vuln_info = json.loads(line)
-    if joomla_cmp("3.3.22", vuln_info["version"]):
+    if compare_versions("3.3.22", vuln_info["version"]):
         session.print_vulnerable(f"{vuln_info['CVE']} {vuln_info['name']}")
