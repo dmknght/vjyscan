@@ -1,5 +1,5 @@
 from vjyscan.cores import http_session
-from vjyscan.modules.fingerprints.joomla import version_parser
+from vjyscan.modules.enumerates.joomla import version_parser
 from vjyscan.resources import joomla
 from vjyscan.cores.version_cmp import *
 import json

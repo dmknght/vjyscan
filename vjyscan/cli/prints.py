@@ -10,6 +10,7 @@ def print_vulnerable(name, uri=""):
     # Bright Magenta
     print(f"  [\033[96m*\033[0m] \033[95m{name}\033[0m is\033[91m vulnerable\033[0m")
     if uri:
+        # TODO print CVE ID
         # Bright Cyan
         print(f"  \033[96m{uri}\033[0m")
 
