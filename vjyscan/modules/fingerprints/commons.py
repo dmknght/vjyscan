@@ -7,7 +7,7 @@ from vjyscan import resources
 FINGERPRINT_DB = resources.__path__[0] + "/fingerprint.jdb"
 
 
-def response_analysis(data: str, client) -> str:
+def response_analysis(client, data: str) -> str:
     """
     Do first fingerprinting by check keywords are in response's text
     :param data: response's html
@@ -22,11 +22,11 @@ def response_analysis(data: str, client) -> str:
         for keyword in cms_fingerprint["keywords"]:
             # If keywords is found, we do other CMS's analysis from response and return CMS's name
             if keyword in data:
-                client.print_verbose(f"Found CMS {cms_fingerprint['name']} by keyword {keyword}")
+                client.print_verbose(f"Found CMS {cms_fingerprint['name']} by keyword \"{keyword}\"")
                 client.print_found(f"Found CMS {cms_fingerprint['name']}")
                 # cms_fingerprint["modules"] is dictionary of name and list of keywords
-                for key, values in cms_fingerprint["modules"]:
-                    for value in values:
+                for finger_print_module in cms_fingerprint["modules"]:
+                    for key, value in finger_print_module.values():
                         if value in data:
                             client.print_found(f"Found {key} by keyword {value}")
                             client.print_found(f"Found {key}")
