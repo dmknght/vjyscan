@@ -2,6 +2,7 @@ from os.path import isfile
 import requests
 import re
 
+
 # Home Page: https://developer.joomla.org/security-centre.html
 
 def parse_part(html):
@@ -12,16 +13,17 @@ def parse_part(html):
     :param html: HTML which we get from request
     :return parts: List of item we got from parsed
     """
-    html = html.replace('\t', ' ').\
-                replace('\n', ' ').\
-                replace('\r', ' ').\
-                replace('\xa0', '').\
-                replace('</a>', '')
+    html = html.replace('\t', ' '). \
+        replace('\n', ' '). \
+        replace('\r', ' '). \
+        replace('\xa0', ''). \
+        replace('</a>', '')
     html = re.sub('[ ]{2,}|<a.+?>', ' ', html)
     parse_part_argument = re.compile('<div class="item column-1" itemprop="blogPost" itemscope '
                                      'itemtype="https://schema\.org/BlogPosting">(.+?)<!-- end item -->')
     parts = re.findall(parse_part_argument, html)
     return parts
+
 
 def clean_unwanted_data(part):
     """
@@ -32,11 +34,12 @@ def clean_unwanted_data(part):
     :param part: The string part of item before parsing
     :return part: The string after parsed
     """
-    part = part.replace('<strong>', '').\
-                replace('</strong>', '').\
-                replace(' - Core - ', ' - ').\
-                replace(' Core ', ' - ')
+    part = part.replace('<strong>', ''). \
+        replace('</strong>', ''). \
+        replace(' - Core - ', ' - '). \
+        replace(' Core ', ' - ')
     return part
+
 
 def parse_to_database(part):
     """
@@ -53,15 +56,16 @@ def parse_to_database(part):
     else:
         CVE = re.search(r'<li>CVE Number:(.+?)</li>', part).group(1)
     try:
-        version = re.search(r'<li>Versions:(.+?)</li>', part).group(1).\
-                    replace('through', '<=').\
-                    replace('-', '<=').\
-                    replace(' <= ', '<=')
-    except: # If version not found, will continue to work and print the data
+        version = re.search(r'<li>Versions:(.+?)</li>', part).group(1). \
+            replace('through', '<='). \
+            replace('-', '<='). \
+            replace(' <= ', '<=')
+    except:  # If version not found, will continue to work and print the data
         version = ""
         print('[-] Version not found: ', end='')
-        print('{'+f'"name": "{name}", "CVE": "{CVE}", "version": "{version}"'+'}\n')
-    return '{'+f'"name": "{name}", "CVE": "{CVE}", "version": "{version}"'+'}'
+        print('{' + f'"name": "{name}", "CVE": "{CVE}", "version": "{version}"' + '}\n')
+    return '{' + f'"name": "{name}", "CVE": "{CVE}", "version": "{version}"' + '}'
+
 
 def get_vulnerabilities(html, list_database):
     """
@@ -73,6 +77,7 @@ def get_vulnerabilities(html, list_database):
     for part in parts:
         list_database.append(parse_to_database(part))
 
+
 def start_parsing(end_page):
     """
     This function will gain page and then start to
@@ -83,9 +88,10 @@ def start_parsing(end_page):
     """
     list_database = []
     for page in range(0, end_page):
-        html = requests.get(f"https://developer.joomla.org/security-centre.html?start={page*10}").text
+        html = requests.get(f"https://developer.joomla.org/security-centre.html?start={page * 10}").text
         get_vulnerabilities(html, list_database)
     return list_database
+
 
 def get_end_page(html):
     """
@@ -105,8 +111,9 @@ def get_end_page(html):
     except:
         exit('[-] Could not get the end of page. Need to improve the code')
     finally:
-        end_page = int(int(end_page)/10+1)
+        end_page = int(int(end_page) / 10 + 1)
         return end_page
+
 
 def get_html(url):
     """
@@ -118,6 +125,7 @@ def get_html(url):
     source = requests.get(url).text
     return source
 
+
 def write_to_db(list_database):
     """
     This function will check if file doesn't exist, it will make a file
@@ -126,7 +134,7 @@ def write_to_db(list_database):
     :param list_database (list): final data to output to file
     :return exit:
     """
-    if isfile('core.jdb') == False:
+    if not isfile('core.jdb'):
         open('core.jdb', 'w').close()
     with open('core.jdb', 'a') as file:
         exist_data = open('core.jdb', 'r').read()
@@ -135,6 +143,7 @@ def write_to_db(list_database):
                 file.write(data + '\n')
     print('[+] Updated Successfully!')
     return exit(0)
+
 
 def update_core():
     """
