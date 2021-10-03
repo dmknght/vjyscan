@@ -94,7 +94,7 @@ def __cmp_with_db_version(target_version: str, db_version: str) -> bool:
         return False
 
 
-def joomla_cmp(target_version: str, db_versions: str) -> bool:
+def compare_versions(target_version: str, db_versions: str) -> bool:
     """
     Original code: https://github.com/OWASP/joomscan/blob/master/core/compare.pl
     Original license: GPL-3
