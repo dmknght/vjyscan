@@ -6,13 +6,14 @@ def print_verbose(message):
     print(f"[+] {message}")
 
 
-def print_vulnerable(name, uri=""):
+def print_vulnerable(name, uri="", cve=""):
     # Bright Magenta
     print(f"  [\033[96m*\033[0m] \033[95m{name}\033[0m is\033[91m vulnerable\033[0m")
     if uri:
-        # TODO print CVE ID
         # Bright Cyan
         print(f"  \033[96m{uri}\033[0m")
+    if cve:
+        print(f"  CVE ID: \033[96m{cve}\033[0m")
 
 
 def print_not_vulnerable(name):
