@@ -7,7 +7,7 @@ from vjyscan import resources
 FINGERPRINT_DB = resources.__path__[0] + "/fingerprint.jdb"
 
 
-def handle_fingerprint(data: str, client) -> str:
+def response_analysis(data: str, client) -> str:
     """
     Do first fingerprinting by check keywords are in response's text
     :param data: response's html
@@ -36,3 +36,10 @@ def handle_fingerprint(data: str, client) -> str:
 
     return ''
 
+
+def header_analysis():
+    """
+    Analysis's target response headers and show information
+    :return:
+    """
+    pass
