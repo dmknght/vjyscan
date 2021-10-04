@@ -38,7 +38,7 @@ def check_xml(client, url):
         check_url = url + path
         req = client.http_client.get(check_url)
         if req.status_code == 200:
-            client.print_verbose(check_url)
+            client.print_verbose(f"Joomla version found at {check_url}")
         version = parse_regex(req.text, r"<version>(.*?)\<\/version>")
         if version:
             client.print_found(f"Found version {version}")
