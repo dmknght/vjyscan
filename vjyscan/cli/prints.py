@@ -2,8 +2,9 @@ def dummy(*args, **kwargs):
     pass
 
 
-def print_verbose(message):
-    print(f"[+] {message}")
+def print_verbose(message: str, tab: int = 1):
+    spaces = tab * "  "
+    print(f"{spaces}- {message}")
 
 
 def print_vulnerable(name, uri="", cve=""):
