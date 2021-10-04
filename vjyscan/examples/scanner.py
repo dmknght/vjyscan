@@ -12,7 +12,6 @@ if cms == "Joomla":
     version = version_parser.check_xml(session, target_url)
     if version:
         session.print_info("Scanning vulnerabilities of core")
-        core_vulns = vuln_check.check_core_vulns(session, version)
+        vuln_check.check_core_vulns(session, version)
 
-session.print_info(f"Core vulnerabilities: {core_vulns}")
 print("Completed")
