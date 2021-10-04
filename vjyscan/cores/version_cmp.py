@@ -44,7 +44,7 @@ def __do_cmp_version(cmp_operator: operator, target_version: str, db_version: st
     :return:
     """
     for target, db in zip(target_version.split("."), db_version.split(".")):
-        if not cmp_operator(target, db):
+        if not cmp_operator(int(target), int(db)):
             return False
     return True
 
