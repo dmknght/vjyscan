@@ -1,4 +1,4 @@
-from vjyscan.cores import http_session
+from vjyscan.cores import scan_session
 from vjyscan.modules.enumerates.joomla import version_parser
 from vjyscan.resources import joomla
 from vjyscan.cores.version_cmp import *
@@ -7,7 +7,7 @@ import json
 db_path = joomla.__path__[0] + "core.jdb" if joomla.__path__[0].endswith("/") else joomla.__path__[0] + "/core.jdb"
 
 
-session = http_session.VJScan(verbose=False, ua="Mozilla/5.0", cookie="", proxy="")
+session = scan_session.VJScan(verbose=False, ua="Mozilla/5.0", cookie="", proxy="")
 
 target_url = "https://ktht.nuce.edu.vn/"
 

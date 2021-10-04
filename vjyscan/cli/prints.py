@@ -32,3 +32,7 @@ def print_found(message, uri=""):
 
 def print_not_found(message):
     print(f"  [\033[91m-\033[0m] {message} not found")
+
+
+def print_info(message: str):
+    print(f" [\033[97mINF\033[0m] \033[97m{message}\033[0m")

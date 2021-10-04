@@ -6,6 +6,7 @@ class VJScan:
     def __init__(self, ua, proxy, cookie, verbose):
         self.print_vulnerable = print_vulnerable
         self.print_found = print_found
+        self.print_info = print_info
         if verbose:
             self.print_verbose = print_verbose
             self.print_not_vulnerable = print_not_vulnerable
