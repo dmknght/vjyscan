@@ -41,5 +41,5 @@ def check_xml(client, url):
             client.print_verbose(f"Joomla version found at {check_url}")
         version = parse_regex(req.text, r"<version>(.*?)\<\/version>")
         if version:
-            client.print_found(f"Found version {version}")
+            client.print_found(f"Joomla version: {version}")
             return version
