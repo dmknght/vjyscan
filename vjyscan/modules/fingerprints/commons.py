@@ -43,3 +43,19 @@ def header_analysis():
     :return:
     """
     pass
+
+
+def find_misconfig_path(client, target: str):
+    """
+    Find misconfig paths of nginx / apache2 server
+    https://github.com/OWASP/joomscan/blob/master/modules/missconfig.pl
+    :param client:
+    :param target:
+    :return:
+    """
+    misconfig_paths = ("Apache Server Information", "Server Root", "Apache Status")
+    for config_path in misconfig_paths:
+        check_url = target + config_path
+        resp = client.http_client.get(target + check_url)
+        if resp == 200:
+            client.print_found(f"Misconfig path {check_url}")
