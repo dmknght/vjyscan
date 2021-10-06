@@ -120,6 +120,7 @@ def find_config_backup(client, target: str):
     Original code: https://github.com/OWASP/joomscan/blob/master/modules/cpfinder.pl
     Original version: 0.0.1
     Original license: GPL-3
+    Py version: 0.0.2
     :param client: HTML session, which is from cores.http_session
     :param target: target: Target's URL
     :return:
@@ -132,14 +133,19 @@ def find_config_backup(client, target: str):
                     'configuration.php.swp', 'configuration.save', '.configuration.php.swp', 'configuration.php1',
                     'configuration.php2', 'configuration.php3', 'configuration.php4', 'configuration.php4',
                     'configuration.php6', 'configuration.php7', 'configuration.phtml', 'configuration.php-dist')
+    config_keywords = ("public $ftp_pass", "$dbtype", "force_ssl", "mosConfig_secret", "mosConfig_dbprefix")
 
     for path in config_paths:
         check_url = target + path
-        req = client.http_client.get(check_url)
-        client.print_verbose(f"[{req.status_code}][{check_url}]")
+        resp = client.http_client.get(check_url)
+        client.print_verbose(f"[{resp.status_code}][{check_url}]")
         # Must do https://github.com/OWASP/joomscan/blob/master/modules/configfinder.pl#L10
-        if req.status_code == 200:
-            client.print_found(f"Found backup config file {check_url}")
+        if resp.status_code == 200:
+            for keyword in config_keywords:
+                if keyword in resp.text:
+                    client.print_verbose(f"Found config file at {check_url} by keyword \"{keyword}\"")
+                    client.print_found(f"Found backup config file {check_url}")
+                    break
 
 
 def handle_enumerate(client, target: str):
