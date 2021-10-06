@@ -137,3 +137,30 @@ def find_config_backup(client, target: str):
         # Must do https://github.com/OWASP/joomscan/blob/master/modules/configfinder.pl#L10
         if req.status_code == 200:
             client.print_found(check_url)
+
+
+def handle_enumerate(client, target: str):
+    """
+    Do handle all enumeration for Joomla CMS
+    :param client: HTML session, which is from cores.http_session
+    :param target: target: Target's URL
+    :return:
+    """
+    version = enum_version_from_xml(client, target)
+    if not version:
+        # TODO try to work with other modules here
+        pass
+    if not version:
+        print("Can't find Joomla version")
+        return
+    else:
+        client.print_info("Scanning vulnerabilities of core")
+        check_core_vulns(client, version)
+        # TODO check all plugins and plugins vulns
+    # TODO get a flag to handle other enumerate
+    client.print_verbose("Check control panel")
+    find_control_panel(client, target)
+    client.print_verbose("Check backup configs")
+    find_config_backup(client, target)
+    client.print_verbose("Check error logs")
+    find_error_logs(client, target)
