@@ -88,7 +88,7 @@ def find_error_logs(client, target: str):
     for path in error_log_paths:
         check_url = target + path
         req = client.http_client.get(check_url)
-        if req.status_code == "200":
+        if req.status_code == 200:
             client.print_found(f"Found error log: {check_url}")
 
 
