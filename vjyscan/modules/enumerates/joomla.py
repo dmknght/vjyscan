@@ -89,7 +89,7 @@ def find_error_logs(client, target: str):
         check_url = target + path
         req = client.http_client.get(check_url)
         if req.status_code == "200":
-            client.print_found(check_url)
+            client.print_found(f"Found error log: {check_url}")
 
 
 def find_control_panel(client, target: str):
@@ -109,7 +109,7 @@ def find_control_panel(client, target: str):
         check_url = target + path + "/"
         req = client.http_client.get(check_url)
         if req.status_code in (200, 403, 500, 501):
-            client.print_found(check_url)
+            client.print_found(f"Found control panel: {check_url}")
 
 
 def find_config_backup(client, target: str):
@@ -136,7 +136,7 @@ def find_config_backup(client, target: str):
         req = client.http_client.get(check_url)
         # Must do https://github.com/OWASP/joomscan/blob/master/modules/configfinder.pl#L10
         if req.status_code == 200:
-            client.print_found(check_url)
+            client.print_found(f"Found backup config file {check_url}")
 
 
 def handle_enumerate(client, target: str):
