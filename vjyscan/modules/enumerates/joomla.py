@@ -158,9 +158,9 @@ def handle_enumerate(client, target: str):
         check_core_vulns(client, version)
         # TODO check all plugins and plugins vulns
     # TODO get a flag to handle other enumerate
-    client.print_verbose("Check control panel")
+    client.print_info("Check control panel")
     find_control_panel(client, target)
-    client.print_verbose("Check backup configs")
+    client.print_info("Check backup configs")
     find_config_backup(client, target)
-    client.print_verbose("Check error logs")
+    client.print_info("Check error logs")
     find_error_logs(client, target)
