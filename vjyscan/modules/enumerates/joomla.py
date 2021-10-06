@@ -1,14 +1,14 @@
-from vjyscan.resources import joomla
+"""
+Do enumerate for Joomla CMS
+"""
 import json
+from urllib.parse import urlencode
+from vjyscan.resources import joomla
 from vjyscan.cores.version_cmp import *
 from vjyscan.cores import *
 
 
 db_path = joomla.__path__[0] + "core.jdb" if joomla.__path__[0].endswith("/") else joomla.__path__[0] + "/core.jdb"
-
-"""
-Do enumerate for Joomla CMS
-"""
 
 
 def check_core_vulns(client, version: str):
@@ -136,7 +136,7 @@ def find_config_backup(client, target: str):
     config_keywords = ("public $ftp_pass", "$dbtype", "force_ssl", "mosConfig_secret", "mosConfig_dbprefix")
 
     for path in config_paths:
-        check_url = target + path
+        check_url = target + urlencode(path)
         resp = client.http_client.get(check_url)
         client.print_verbose(f"[{resp.status_code}][{check_url}]")
         # Must do https://github.com/OWASP/joomscan/blob/master/modules/configfinder.pl#L10
