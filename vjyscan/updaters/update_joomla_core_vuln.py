@@ -1,8 +1,7 @@
-from os.path import isfile
+from os.path import isfile, isdir
+from os import makedirs
 import requests
 import re
-
-
 # Home Page: https://developer.joomla.org/security-centre.html
 
 def __parse_part(html):
@@ -38,6 +37,7 @@ def __clean_unwanted_data(part):
         replace(' Core ', ' - ')
     return part
 
+
 def __replace_others(version: str):
     """
     This funtion used when after checked and parsed the version
@@ -58,6 +58,7 @@ def __replace_others(version: str):
         replace('x', '').\
         replace(' ','')
     return version
+
 
 def __check_version_ealier(version: str):
     """
@@ -82,6 +83,7 @@ def __check_version_ealier(version: str):
         print(f'[-] Could not parse: "{version}"')
     finally:
         return version
+
 
 def __version_checker(version: str):
     """
@@ -123,6 +125,7 @@ def __version_checker(version: str):
     version = re.sub('\.$', '', version)
     return version
 
+
 def __parse_to_database(part):
     """
     This parser will get name of vulnerability, CVE Number, and version
@@ -130,6 +133,7 @@ def __parse_to_database(part):
     :param part: The part inputted from list of parts
     :return string: {"Name": parsed_name, "CVE": CVE-Number, "version": version}
     """
+    argument_error = False
     part = __clean_unwanted_data(part)
     name = re.search(r'\[[0-9]{8}][- ]{3}(.+?)[ ]{0,}</h2>', part).group(1)
     if "<li>CVE Number:" not in part:
@@ -143,7 +147,8 @@ def __parse_to_database(part):
         replace('Requested','').\
         replace(' ', '')
     if 'X' in CVE:
-        print('[-] CVE Number problem: '+CVE)
+        argument_error = True
+        print('[-] CVE Number problem: ', end='')
     try:
         version = re.search(r'<li>Versions:(.+?)</li>', part).group(1). \
             replace('through', '<='). \
@@ -153,8 +158,10 @@ def __parse_to_database(part):
         version = __version_checker(version)
     except:  # If version not found, will continue to work and print the data
         version = ""
+        argument_error = True
         print('[-] Version not found: ', end='')
-        print('{' + f'"name": "{name}", "CVE": "{CVE}", "version": "{version}"' + '}\n')
+    if argument_error:
+        print('{' + f'"name": "{name}", "CVE": "{CVE}", "version": "{version}"' + '}')
     return '{' + f'"name": "{name}", "CVE": "{CVE}", "version": "{version}"' + '}'
 
 
@@ -222,10 +229,12 @@ def __write_to_db(list_database):
     :param list_database (list): final data to output to file
     :return exit:
     """
-    if not isfile('core.jdb'):
-        open('core.jdb', 'w').close()
-    with open('core.jdb', 'a') as file:
-        exist_data = open('core.jdb', 'r').read()
+    if not isdir("../resources/joomla/"):
+        makedirs("../resources/joomla/")
+    if not isfile('../resources/joomla/core.jdb'):
+        open('../resources/joomla/core.jdb', 'w').close()
+    with open('../resources/joomla/core.jdb', 'a') as file:
+        exist_data = open('../resources/joomla/core.jdb', 'r').read()
         for data in list_database:
             if data not in exist_data:
                 file.write(data + '\n')
