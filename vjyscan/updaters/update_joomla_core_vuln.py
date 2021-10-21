@@ -1,7 +1,7 @@
-from os.path import isfile, isdir
-from os import makedirs
 import requests
 import re
+
+
 # Home Page: https://developer.joomla.org/security-centre.html
 
 def __parse_part(html):
@@ -17,9 +17,8 @@ def __parse_part(html):
         replace('\xa0', ''). \
         replace('</a>', '')
     html = re.sub('[ ]{2,}|<a.+?>', ' ', html)
-    parse_part_argument = re.compile('<div class="item column-1" itemprop="blogPost" itemscope '
-                                     'itemtype="https://schema\.org/BlogPosting">(.+?)<!-- end item -->')
-    parts = re.findall(parse_part_argument, html)
+    parts = re.findall(r'<div class="item column-1" itemprop="blogPost" itemscope itemtype='
+                       r'"https://schema.org/BlogPosting">(.+?)<!-- end item -->', html)
     return parts
 
 
@@ -40,43 +39,43 @@ def __clean_unwanted_data(part):
 
 def __replace_others(version: str):
     """
-    This funtion used when after checked and parsed the version
-        will remove the unwantted characters
-
+    This function used when after checked and parsed the version
+        will remove the unwanted characters
     :param version (string):
     :return version (string):
     """
     version = version.replace('..', '.').\
-        replace(', ','|').\
-        replace('. ','|').\
-        replace('; ','|').\
-        replace(' and ','|').\
-        replace('versions','').\
-        replace('version','').\
-        replace('releases','').\
-        replace('release','').\
+        replace(', ', '|').\
+        replace('. ', '|').\
+        replace('; ', '|').\
+        replace(' and ', '|').\
+        replace('versions', '').\
+        replace('version', '').\
+        replace('releases', '').\
+        replace('release', '').\
         replace('x', '').\
-        replace(' ','')
+        replace(' ', '')
     return version
 
 
-def __check_version_ealier(version: str):
+def __check_version_earlier(version: str):
     """
     Just Checking for version with earlier argument
     :param version (string):
     :return:
     """
     try:
-        if 'and all earlier versions' in version or bool(re.match('[\d.]+ and earlier$', version)):
-            parse_version = re.search('([\d.]+) and[al ]{0,4} earlier[ version]{0,9}', version)
-            string = re.sub('[\d.]+ and[al ]{0,4} earlier[ version]{0,9}', parse_version.group(1), version)
+        if 'and all earlier versions' in version or bool(re.match(r'[\d.]+ and earlier$', version)):
+            parse_version = re.search(r'([\d.]+) and[al ]{0,4} earlier[ version]{0,9}', version)
+            string = re.sub(r'[\d.]+ and[al ]{0,4} earlier[ version]{0,9}', parse_version.group(1), version)
         else:
-            parse_version = re.search('([\d.]+) and[al ]{0,4} earlier ([\d.]+)', version)
+            parse_version = re.search(r'([\d.]+) and[al ]{0,4} earlier ([\d.]+)', version)
             if len(parse_version.group(2)) == 2:
-                check_len = parse_version.group(2).replace('.','.0')
+                check_len = parse_version.group(2).replace('.', '.0')
             else:
                 check_len = parse_version.group(2)
-            string = re.sub('[\d.]+ and[al ]{0,4} earlier [\d.]+', f"{check_len}.0<= {parse_version.group(1)}", version)
+            string = re.sub(r'[\d.]+ and[al ]{0,4} earlier [\d.]+',
+                            f"{check_len}.0<= {parse_version.group(1)}", version)
             string = __replace_others(string)
         version = string
     except:
@@ -89,31 +88,31 @@ def __version_checker(version: str):
     """
     This Function used to check the format and reformat if not match
         with our database:
-        1. argument1 and all earlier argment2 => argument2<=argument1
+        1. argument1 and all earlier argument2 => argument2<=argument1
             E.g: 2.5.13 and all earlier 2.5.x versions => 2.5.x<=2.5.13
-        2. argument1 and all previous argment2 => argument2 <= argument1
+        2. argument1 and all previous argument2 => argument2 <= argument1
             E.g:  2.5.13 and all previous 2.5.x versions => 2.5.x<=2.5.13
-        3. argument1 and all argment2 => argument1 | argument2
+        3. argument1 and all argument2 => argument1 | argument2
             E.g: 1.8.0 and all 1.6.x versions => 1.8.0|1.6.x (Note: all will replace to x)
-        4. argument1 and argment2 => argument1 | argument2
+        4. argument1 and argument2 => argument1 | argument2
             E.g: 2.5.13 and 2.5.x versions => 2.5.x|2.5.13
-
     :param version (string): Input the version to check
     :return version (string): Output after checked
     """
     version = re.sub('<.+?>', '', version)
     if 'earlier' in version:
-        version = __check_version_ealier(version)
+        version = __check_version_earlier(version)
     elif 'previous' in version:
         try:
-            parse_version = re.search('([\d.]+) and all previous ([\d.]+) releases', version)
-            version = re.sub('[\d.]+ and all previous [\d.]+ releases', f'{parse_version.group(2)}<={parse_version.group(1)}', version)
+            parse_version = re.search(r'([\d.]+) and all previous ([\d.]+) releases', version)
+            version = re.sub(r'[\d.]+ and all previous [\d.]+ releases', 
+                             f'{parse_version.group(2)}<={parse_version.group(1)}', version)
             version = __replace_others(version)
         except:
             print(f'[-] Could not parse: "{version}"')
     else:
         version = version.replace(', ', '|').\
-            replace('. ','|').\
+            replace('. ', '|').\
             replace('; ', '|'). \
             replace('and all', '|'). \
             replace('and', '|'). \
@@ -122,7 +121,7 @@ def __version_checker(version: str):
             replace('releases', '').\
             replace('||', '|').\
             replace(' ', '')
-    version = re.sub('\.$', '', version)
+    version = re.sub(r'\.$', '', version)
     return version
 
 
@@ -137,16 +136,16 @@ def __parse_to_database(part):
     part = __clean_unwanted_data(part)
     name = re.search(r'\[[0-9]{8}][- ]{3}(.+?)[ ]{0,}</h2>', part).group(1)
     if "<li>CVE Number:" not in part:
-        CVE = ''
+        cve = ''
     else:
-        CVE = re.search(r'<li>CVE Number:(.+?)</li>', part).group(1)
-    CVE = CVE.replace('requested', '').\
+        cve = re.search(r'<li>CVE Number:(.+?)</li>', part).group(1)
+    cve = cve.replace('requested', '').\
         replace(' and ', '|').\
-        replace('None','').\
-        replace('Pending','').\
-        replace('Requested','').\
+        replace('None', '').\
+        replace('Pending', '').\
+        replace('Requested', '').\
         replace(' ', '')
-    if 'X' in CVE:
+    if 'X' in cve:
         argument_error = True
         print('[-] CVE Number problem: ', end='')
     try:
@@ -154,41 +153,15 @@ def __parse_to_database(part):
             replace('through', '<='). \
             replace('-', '<='). \
             replace(' <= ', '<=')
-        version = re.sub('^[ ]{0,}', '', version)
+        version = re.sub(r'^[ ]{0,}', '', version)
         version = __version_checker(version)
     except:  # If version not found, will continue to work and print the data
         version = ""
         argument_error = True
         print('[-] Version not found: ', end='')
     if argument_error:
-        print('{' + f'"name": "{name}", "CVE": "{CVE}", "version": "{version}"' + '}')
-    return '{' + f'"name": "{name}", "CVE": "{CVE}", "version": "{version}"' + '}'
-
-
-def __get_vulnerabilities(html, list_database):
-    """
-    This function will parse the vulnerability like Name, CVE, Version
-    :param html (string): the source page
-    :return: Continue of the code
-    """
-    parts = __parse_part(html)
-    for part in parts:
-        list_database.append(__parse_to_database(part))
-
-
-def __start_parsing(end_page):
-    """
-    This function will gain page and then start to
-        parse by calling other function
-        Page: https://developer.joomla.org/security-centre.html?start=number*10
-    :param end_page (integer): the number of last page
-    :return list_database (list): the final data
-    """
-    list_database = []
-    for page in range(0, end_page):
-        html = requests.get(f"https://developer.joomla.org/security-centre.html?start={page * 10}").text
-        __get_vulnerabilities(html, list_database)
-    return list_database
+        print('{' + f'"name": "{name}", "CVE": "{cve}", "version": "{version}"' + '}')
+    return '{' + f'"name": "{name}", "CVE": "{cve}", "version": "{version}"' + '}'
 
 
 def __get_end_page(html):
@@ -201,10 +174,9 @@ def __get_end_page(html):
     :return end_page (integer): The number of last page
     """
     end_page = 0
-    parse_arguments = re.compile(
-        'a href="/security-centre.html\?start=(\d+?)" class="pagenav hasTooltip" title="End"')
     try:
-        end_page = re.search(parse_arguments, html).group(1)
+        end_page = re.search(r'a href="/security-centre.html\?start=(\d+?)" class="pagenav '
+                             r'hasTooltip" title="End"', html).group(1)
     except:
         exit('[-] Could not get the end of page. Need to improve the code')
     finally:
@@ -229,6 +201,9 @@ def __write_to_db(list_database):
     :param list_database (list): final data to output to file
     :return exit:
     """
+    from os.path import isfile, isdir
+    from os import makedirs
+
     if not isdir("../resources/joomla/"):
         makedirs("../resources/joomla/")
     if not isfile('../resources/joomla/core.jdb'):
@@ -239,7 +214,17 @@ def __write_to_db(list_database):
             if data not in exist_data:
                 file.write(data + '\n')
     print('[+] Updated Successfully!')
-    return exit(0)
+
+
+def __get_vulnerabilities(html, list_database):
+    """
+    This function will parse the vulnerability like Name, CVE, Version
+    :param html (string): the source page
+    :return: Continue of the code
+    """
+    parts = __parse_part(html)
+    for part in parts:
+        list_database.append(__parse_to_database(part))
 
 
 def update_core():
@@ -247,8 +232,19 @@ def update_core():
     This is the main of code, which will be called and returned
         the data to file: ../resources/joomla/core.jdb
     """
-    home_page = 'https://developer.joomla.org/security-centre.html'
-    source = __get_html(home_page)
-    end_page = __get_end_page(source)
-    list_database = __start_parsing(end_page)
+    list_database = []
+    end_page = 0
+    counter = 0
+    
+    while True:
+        source = __get_html(f"https://developer.joomla.org/security-centre.html?start={counter * 10}")
+        if end_page == 0:
+            end_page = __get_end_page(source)
+        __get_vulnerabilities(source, list_database)
+        counter += 1
+        if counter > end_page:
+            break
     __write_to_db(list_database)
+
+    from sys import exit
+    exit(0)
