@@ -243,9 +243,9 @@ def update_core():
         if end_page == 0:
             end_page = __get_end_page(source)
         __get_vulnerabilities(source, list_database)
+        counter += 1
         if counter > end_page:
             break
-        counter += 1
     __write_to_db(list_database)
 
     from sys import exit
